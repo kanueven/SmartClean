@@ -12,8 +12,13 @@ from decimal import Decimal
 class JobListCreateView(generics.ListCreateAPIView):
     serializer_class = JobSerializer
     queryset =Job.objects.all()
+   
 
     def get_queryset(self):
+              # add filterimg
+        status_param = self.request.query_params.get("status")
+        if status_param:
+            queryset = queryset.filter(status=status_param)
         user = self.request.user
         if user.role == "admin":
             return Job.objects.all()
@@ -28,7 +33,7 @@ class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = JobSerializer
 
 # Generate quote,admin can do this
-class GenerateQuote(APIView):
+class GenerateQuoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request,pk):
@@ -68,27 +73,27 @@ class AcceptQuoteView(APIView):
 
         return Response({"message": "Quote accepted"})
 # complete job->done by cleaner
-class AcceptQuoteView(APIView):
+class CompleteJobView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
         job = get_object_or_404(Job, pk=pk)
 
-        if job.client.user != request.user:
+        if not job.cleaner or job.cleaner.user != request.user:
             return Response(
-                {"error": "Only job owner can accept quote"},
+                {"error": "Only assigned cleaner can complete job"},
                 status=403
             )
 
-        if not job.can_transition("scheduled"):
+        if not job.can_transition("completed"):
             return Response(
                 {"error": "Invalid transition"},
                 status=400
             )
 
-        job.transition("scheduled")
+        job.transition("completed")
 
-        return Response({"message": "Quote accepted"})
+        return Response({"message": "Job completed"})
 class JobDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Job.objects.all()
     serializer_class = JobSerializer
