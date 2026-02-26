@@ -16,12 +16,18 @@ class CleanerSerializer(serializers.ModelSerializer):
     read_only_fields = ['id', 'username', 'user_email', 'created_at', 'updated_at']
     
     # validate, and make sure status and is_active is valid
-    def validate(self, value):
-        if not value.is_active:
-            raise serializers.ValidationError('This cleaner is inactive user')
-        if hasattr(value, 'cleaner_profile'):
-           raise serializers.ValidationError("This user already has a cleaner profile")
-        return value
+    def validate(self, attrs):
+     user = attrs.get('user')
+
+    # Prevent creating profile for inactive user
+     if user and not user.is_active:
+        raise serializers.ValidationError("This user account is inactive.")
+
+    # Prevent duplicate cleaner profile (OneToOne protection)
+     if user and hasattr(user, 'cleaner_profile'):
+        raise serializers.ValidationError("This user already has a cleaner profile.")
+
+     return attrs
     # Validate status field to ensure it matches allowed choices
     def validate_status(self, value):
         allowed = [choice[0] for choice in Cleaner.STATUS_CHOICE]

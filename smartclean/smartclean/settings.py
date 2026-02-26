@@ -41,15 +41,19 @@ INSTALLED_APPS = [
     
      'rest_framework',
      'rest_framework.authtoken',
+     'rest_framework_simplejwt',
     'accounts',
     'clients',
     'cleaners',
+    'services',
+    'jobs',
 ]
 AUTH_USER_MODEL = 'accounts.User'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',  # optional
+        # 'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
