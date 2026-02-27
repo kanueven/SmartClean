@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import generics
 from .serializers import UserSerializer,RegisterUserSerializer
-from rest_framework.permissions import AllowAny,IsAuthenticated
+from rest_framework.permissions import AllowAny,IsAuthenticated,IsAdminUser
 from .models import User
 
 # Create your views here.
@@ -15,7 +15,7 @@ class RegisterView(generics.CreateAPIView):
 class ListUsersView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]  # You can create a custom IsAdminUser permission
+    permission_classes = [IsAdminUser]
 
 # Retrieve/update a single user
 class UserDetailView(generics.RetrieveUpdateAPIView):
