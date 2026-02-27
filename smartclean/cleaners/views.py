@@ -1,6 +1,6 @@
 from rest_framework import generics,filters
 from .serializers import CleanerSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from .permissions import IsOwnerOrAdmin
 from .models import Cleaner
 
@@ -22,9 +22,6 @@ class CleanerListCreateView(generics.ListCreateAPIView):
         return Cleaner.objects.filter(user=self.request.user)
     
     def perform_create(self, serializer):
-         if 'user' not in serializer.validated_data:
-            serializer.save(user=self.request.user)
-         else:
             serializer.save()
 class CleanerRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Cleaner.objects.all()

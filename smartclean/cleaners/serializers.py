@@ -13,21 +13,41 @@ class CleanerSerializer(serializers.ModelSerializer):
             'phone_number', 'address', 'skills', 'status', 
             'is_active', 'created_at', 'updated_at'
         ]
-    read_only_fields = ['id', 'username', 'user_email', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'username', 'user_email', 'created_at', 'updated_at']
     
     # validate, and make sure status and is_active is valid
     def validate(self, attrs):
+     request = self.context.get('request')
+     if self.instance:
+        return attrs
      user = attrs.get('user')
 
     # Prevent creating profile for inactive user
      if user and not user.is_active:
         raise serializers.ValidationError("This user account is inactive.")
-
+    # ensure user has role cleaner
+     if request.user.is_staff:
+        if not user:
+            raise serializers.ValidationError("Admin must specify a user.")
+        if request.user.groups.filter(name='Cleaner').exists():
+            raise serializers.ValidationError("User must have role='cleaner'.")
+#  acleaner can create their own profile
+     elif request.user.groups.filter(name = 'Cleaner').exists():
+         user = request.user
+         attrs['user']=user
+         if hasattr(user,'cleaner_profile'):
+             raise serializers.ValidationError("You already have a cleaner profile")
+          # If client tries
+     else:
+        raise serializers.ValidationError("Clients cannot create cleaner profiles.")
+    
     # Prevent duplicate cleaner profile (OneToOne protection)
      if user and hasattr(user, 'cleaner_profile'):
         raise serializers.ValidationError("This user already has a cleaner profile.")
-
      return attrs
+ 
+
+
     # Validate status field to ensure it matches allowed choices
     def validate_status(self, value):
         allowed = [choice[0] for choice in Cleaner.STATUS_CHOICE]
