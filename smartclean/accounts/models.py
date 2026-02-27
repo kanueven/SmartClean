@@ -11,3 +11,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} "
+    @property
+    def role(self):
+            group = self.groups.first()
+            return group.name if group else None

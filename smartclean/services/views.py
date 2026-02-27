@@ -11,7 +11,7 @@ class ServiceListCreateView(generics.ListCreateAPIView):
         if self.request.method =="POST":
             return [permissions.IsAdminUser()]
         
-        return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
 
 class ServiceUpdateView(generics.UpdateAPIView):
     queryset = Service.objects.all()

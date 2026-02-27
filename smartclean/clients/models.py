@@ -14,5 +14,8 @@ class Client(models.Model):
     def __str__(self):
         return f"{self.user.username}"
 
-    
+    def can_be_deleted(self):
+            return not self.jobs.exists()
+    # John has 3 jobs → False → blocked with clean error message
+    # Mary has 0 jobs → True  → deletion allowed
     
