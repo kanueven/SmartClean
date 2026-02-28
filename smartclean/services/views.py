@@ -1,7 +1,8 @@
 from .serializers import ServiceSerializer,JobServiceSerializer
 from .models import Service,JobService
-from rest_framework import generics,permissions
+from rest_framework import generics,permissions,status
 from accounts.permissions import IsAdmin
+from rest_framework.response import Response
 
 # Create your views here.
 class ServiceListCreateView(generics.ListCreateAPIView):
@@ -21,6 +22,11 @@ class ServiceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method == 'GET':
             return [permissions.AllowAny()]
         return [IsAdmin()]
+    
+    def update(self, request, *args, **kwargs):
+        # Always allow partial updates so you only send changed fields
+        kwargs['partial'] = True
+        return super().update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
         service = self.get_object()

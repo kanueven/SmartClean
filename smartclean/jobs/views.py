@@ -82,16 +82,18 @@ class GenerateQuoteView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        total = jobs.calculate_total()
+        total = job.calculate_total()
         job.quoted_price=Decimal(str(total))
         job.transition('quoted')
          
-        return Response({ "message":"Quote generated",
-                         "quoted_price":job.quoted_price},
-                        'services':[
+        return Response({
+            'message': 'Quote generated.',
+            'quoted_price': job.quoted_price,
+            'services': [
                 {'name': s.name, 'price': s.base_price}
                 for s in job.services.all()
-            ])
+            ]
+        })
 
 # accept quote->client side
 class AcceptQuoteView(APIView):

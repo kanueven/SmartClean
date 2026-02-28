@@ -25,7 +25,7 @@ class Job(models.Model):
     #relations
     client = models.ForeignKey(Client,on_delete=models.PROTECT,related_name='jobs')
     cleaner = models.ForeignKey(Cleaner,on_delete=models.SET_NULL,blank=True,related_name='jobs',null=True)
-    service = models.ManyToManyField(Service,through = 'services.JobServices',blank= True)
+    service = models.ManyToManyField(Service,through = 'services.JobService',blank= True)
     
     # job details
     title = models.CharField(max_length=200)
