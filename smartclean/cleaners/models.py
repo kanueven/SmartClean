@@ -29,8 +29,5 @@ class Cleaner(models.Model):
     def __str__(self):
         return f"{self.user.username} ({self.phone_number})"
     def can_be_deleted(self):
-        """
-        Will return False once jobs are linked.
-        Hook: add `self.jobs.exists()` here when job app is ready.
-        """
+        
         return True
