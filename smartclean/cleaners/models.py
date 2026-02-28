@@ -30,4 +30,4 @@ class Cleaner(models.Model):
         return f"{self.user.username} ({self.phone_number})"
     def can_be_deleted(self):
         
-        return True
+        return not self.jobs.exists()
