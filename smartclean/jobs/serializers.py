@@ -6,7 +6,8 @@ from services.models import Service
 class JobSerializer(serializers.ModelSerializer):
     services = serializers.PrimaryKeyRelatedField(
         queryset=Service.objects.all(),
-        many=True
+        many=True,
+        required = False
     )
     # Show service names alongside ids
     service_names = serializers.SerializerMethodField()

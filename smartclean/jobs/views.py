@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied,ValidationError
 from .models import Job
 from .serializers import JobSerializer
-from services.models import Service
+from django.utils import timezone  
 from rest_framework.views import APIView
 from decimal import Decimal
 
@@ -44,7 +44,7 @@ class JobListCreateView(generics.ListCreateAPIView):
             raise PermissionDenied("Onlyclients or admin can create jobs")
         # Link job to the client profile of the logged-in user
         if is_client:
-                   serializer.save(client=self.request.user)
+                   serializer.save(client=self.request.user.client_profile)
         else:
              # Admin must provide client in request body
             serializer.save()
@@ -68,7 +68,7 @@ class GenerateQuoteView(APIView):
         if not is_admin:
             return Response( {"Only the admin can generate quotes"} 
                             ,status=status.HTTP_403_FORBIDDEN)
-        job = get_object_or_404(Job,pk)
+        job = get_object_or_404(Job,pk=pk)
         
         if not job.can_transition("quoted"):
             return Response (

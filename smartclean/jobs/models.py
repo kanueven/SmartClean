@@ -1,7 +1,8 @@
 from django.db import models
 from cleaners.models import Cleaner
 from clients.models import Client
-from services.models import Service
+from services.models import Service,JobService
+
 
 # Create your models here.
 class Job(models.Model):
@@ -25,7 +26,7 @@ class Job(models.Model):
     #relations
     client = models.ForeignKey(Client,on_delete=models.PROTECT,related_name='jobs')
     cleaner = models.ForeignKey(Cleaner,on_delete=models.SET_NULL,blank=True,related_name='jobs',null=True)
-    service = models.ManyToManyField(Service,through = 'services.JobService',blank= True)
+    services= models.ManyToManyField(Service,through = 'services.JobService',blank= True)
     
     # job details
     title = models.CharField(max_length=200)
@@ -55,6 +56,14 @@ class Job(models.Model):
         return f"job {self.id} -{self.status}"
     def can_transition(self,new_status):
         return new_status in self.ALLOWED_TRANSITIONS.get(self.status,[])
+    
+    # total
+    def calculate_total(self):
+        total = sum(
+        js.quantity * js.unit_price
+        for js in JobService.objects.filter(job=self)
+    )
+        return total
     
     def transition(self, new_status):
         
