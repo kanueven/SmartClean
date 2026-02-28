@@ -5,12 +5,14 @@ from .views import (
     GenerateQuoteView,
     AcceptQuoteView,
     CompleteJobView,
+    CancelJobView
 )
 
 urlpatterns = [
     path("", JobListCreateView.as_view()),
     path("<int:pk>/", JobDetailView.as_view()),
-    path("<int:pk>/generate-quote/", GenerateQuoteView.as_view()),
-    path("<int:pk>/accept-quote/", AcceptQuoteView.as_view()),
-    path("<int:pk>/complete/", CompleteJobView.as_view()),
+    path('<int:pk>/generate-quote/', GenerateQuoteView.as_view(), name='job-generate-quote'),
+    path('<int:pk>/accept-quote/', AcceptQuoteView.as_view(), name='job-accept-quote'),
+    path('<int:pk>/complete/', CompleteJobView.as_view(), name='job-complete'),
+    path('<int:pk>/cancel/', CancelJobView.as_view(), name='job-cancel'),
 ]

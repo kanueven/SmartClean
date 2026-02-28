@@ -25,7 +25,7 @@ class Job(models.Model):
     #relations
     client = models.ForeignKey(Client,on_delete=models.PROTECT,related_name='jobs')
     cleaner = models.ForeignKey(Cleaner,on_delete=models.SET_NULL,blank=True,related_name='jobs',null=True)
-    services = models.ManyToManyField(Service)
+    service = models.ManyToManyField(Service,through = 'services.JobServices',blank= True)
     
     # job details
     title = models.CharField(max_length=200)
@@ -55,7 +55,9 @@ class Job(models.Model):
         return f"job {self.id} -{self.status}"
     def can_transition(self,new_status):
         return new_status in self.ALLOWED_TRANSITIONS.get(self.status,[])
+    
     def transition(self, new_status):
+        
         if not self.can_transition(new_status):
                     raise ValueError(
             f"Cannot transition from {self.status} to {new_status}"
