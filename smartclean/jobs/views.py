@@ -124,7 +124,31 @@ class AcceptQuoteView(APIView):
             'job_id': job.id,
             'status': job.status,
         })
+#cleaner startsthe job
+class StartJobView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    def post(self, request,pk):
+        job = get_object_or_404(Job,pk = pk)
+        is_admin = request.user.is_superuser or request.user.groups.filter(name = 'admin').exists()
+        # an admin is he one who starts the job
+        if not is_admin:
+            return Response(
+                {'error':'Only admins can start jobs'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        if not job.can_transition('in_progress'):
+            return Response(
+                 {'error': f'Cannot start a job with status "{job.status}".'},
+                 status=status.HTTP_404_BAD_REQUEST
+            )
         
+        job.started_at = timezone.now()
+        job.save()
+        job.transition('in_progress')
+        return Response({ 'message': 'Job started.', 'job_id': job.id,'status': job.status, 'started_at': job.started_at,
+        })
+    
+    
 # complete job->done by cleaner,they mark it as completed
 class CompleteJobView(APIView):
     permission_classes = [permissions.IsAuthenticated]
